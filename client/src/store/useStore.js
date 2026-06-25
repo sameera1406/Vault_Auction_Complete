@@ -1,9 +1,7 @@
 import { create } from 'zustand';
 import { io } from 'socket.io-client';
-
-const API_BASE = 'http://localhost:5000/api';
-const SOCKET_URL = 'http://localhost:5000';
-
+const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api`;
+const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL;
 export const getImageUrl = (url) => {
   if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
