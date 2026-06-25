@@ -6,6 +6,7 @@ node_modules/
 out/
 
 # Environment variables
+*.db
 .env
 .env.local
 .env.development.local
@@ -37,4 +38,3 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
-*.db
