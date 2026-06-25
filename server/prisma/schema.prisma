@@ -1,0 +1,88 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id         String        @id @default(uuid())
+  email      String        @unique
+  password   String
+  name       String
+  reputation Float         @default(100.0)
+  role       String        @default("USER") // "USER" or "ADMIN"
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  items      Item[]        @relation("SellerItems")
+  bids       Bid[]
+  sales      Transaction[] @relation("SellerTransactions")
+  purchases  Transaction[] @relation("BuyerTransactions")
+}
+
+model Item {
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  category      String
+  originalValue Float
+  sellerId      String
+  seller        User     @relation("SellerItems", fields: [sellerId], references: [id], onDelete: Cascade)
+  images        Image[]
+  auction       Auction?
+  createdAt     DateTime @default(now())
+}
+
+model Image {
+  id     String @id @default(uuid())
+  url    String
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+model Auction {
+  id           String        @id @default(uuid())
+  itemId       String        @unique
+  item         Item          @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  startTime    DateTime
+  endTime      DateTime
+  startingBid  Float
+  status       String        @default("UPCOMING") // "UPCOMING", "LIVE", "ENDED", "SOLD", "CANCELLED"
+  createdAt    DateTime      @default(now())
+  bids         Bid[]
+  transactions Transaction[]
+}
+
+model Bid {
+  id        String   @id @default(uuid())
+  auctionId String
+  auction   Auction  @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  bidderId  String
+  bidder    User     @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+  amount    Float
+  createdAt DateTime @default(now())
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  auctionId String
+  auction   Auction  @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  sellerId  String
+  seller    User     @relation("SellerTransactions", fields: [sellerId], references: [id], onDelete: Cascade)
+  buyerId   String
+  buyer     User     @relation("BuyerTransactions", fields: [buyerId], references: [id], onDelete: Cascade)
+  amount    Float
+  status    String   @default("PENDING") // "PENDING", "COMPLETED", "REFUSED"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+}
